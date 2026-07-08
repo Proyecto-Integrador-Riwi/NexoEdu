@@ -1,5 +1,6 @@
 import Auth from "../modules/auth";
 import Router from "../modules/router";
+import { API_URL } from "../modules/auth";
 
 const Login = {
     async render() {
@@ -92,15 +93,15 @@ const Login = {
         })
 
         const addCountry = () => {
-        const countryName = container.querySelector("#country-input").value;
-        const capitalName = container.querySelector("#capital-input").value;
+        const countryName= container.querySelector("#country-input").value;
+        const capitalName= container.querySelector("#capital-input").value;
 
         const country = {
             name: countryName,
             capital: capitalName
         };
 
-        fetch("http://localhost:5000/countries", {
+        fetch("http://localhost:3000/countries", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
