@@ -12,27 +12,31 @@ const http= {
             options.body= JSON.stringify(body)
         }
 
-        return await fetch(`${API_URL}/${endpoint}`, options)
+        return fetch(`${API_URL}/${endpoint}`, options)
     },
 
     get(endpoint) {
         return this.request("GET", endpoint)
     },
-    create(endpoint, data) {
+    post(endpoint, data) {
         return this.request("POST", endpoint, data);
     },
-    update(endpoint, identifier, user) {
-        return this.request("PUT", `${endpoint}/${identifier}`, user);
+    put(endpoint, id, user) {
+        return this.request("PUT", `${endpoint}/${id}`, user);
     },
-    delete(id) {
-        return this.request("DELETE", `users/${id}`);
+    delete(endpoint, id) {
+        return this.request("DELETE", `${endpoint}/${id}`);
     }
 
 /*
     example
-    await http.createUser({
-        name: "Nathan Yahoo",
-        age: 24
+    await http.post({
+        "students",
+        {
+            name: "Nathan Yahoo",
+            age: 24
+        }
+        
     })
 */
 }
