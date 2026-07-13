@@ -1,4 +1,4 @@
-import { API_URL } from "../src/modules/auth"
+import { API_URL } from "./auth.js";
 const http= {
     async request (method, endpoint, body = null) {
         const options = {
