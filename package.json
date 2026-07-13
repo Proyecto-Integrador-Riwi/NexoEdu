@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+"scripts": {
+  "install:all": "npm install --prefix backend && npm install --prefix frontend",
+  "dev:backend": "npm --prefix backend run dev",
+  "dev:frontend": "npm --prefix frontend run dev",
+  "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\""
+},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Proyecto-Integrador-Riwi/Riwi-Projects.git"
@@ -13,9 +16,12 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/Proyecto-Integrador-Riwi/Riwi-Projects/issues"
   },
-  "homepage": "https://github.com/Proyecto-Integrador-Riwi/Riwi-Projects#readme"
+  "homepage": "https://github.com/Proyecto-Integrador-Riwi/Riwi-Projects#readme",
+  "devDependencies": {
+    "concurrently": "^10.0.3"
+  }
 }
