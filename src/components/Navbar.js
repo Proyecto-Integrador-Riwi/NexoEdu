@@ -4,7 +4,6 @@ import Router from "../modules/router";
 const Navbar = {
     render() {
         const user = Auth.getUser();
-
         const nav = document.createElement("nav")
         nav.className = "bg-white shadow-sm sticky top-0 z-50"
 
@@ -32,7 +31,9 @@ const Navbar = {
         <div class="flex items-center gap-4">
           <div class="text-right hidden sm:block">
             <p class="text-sm font-semibold text-gray-700">${user.name}</p>
-            <p class="text-xs text-gray-400 capitalize">${user.role}</p>
+            <p class="text-xs tex() => {
+            
+        })t-gray-400 capitalize">${user.role}</p>
           </div>
           <div class="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
             ${user.name.charAt(0).toUpperCase()}
