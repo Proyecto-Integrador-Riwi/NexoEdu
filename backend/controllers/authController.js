@@ -22,7 +22,7 @@ export async function login(req, res) {
         }
 
         // Si la autenticación es correcta, devolver el nombre de usuario y el rol junto al jwt
-        const payload= { username: usuario.username, role: usuario.rol } 
+        const payload= { username: usuario.username, rol: usuario.rol } 
         const accessToken= jwt.sign(
             payload, 
             process.env.JWT_SECRET, //Claves almacenadas en variables de entorno (.env)
@@ -33,14 +33,22 @@ export async function login(req, res) {
             process.env.JWT_REFRESH_SECRET, 
             { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN })
 
-        res
+        return res
         .cookie("accessToken", accessToken, {
             httpOnly: true, //Acceso exclusivo desde el backend, y el sameSite para delimitarlo al dominio
             secure: process.env.NODE_ENV=== "production", //Limita el acceso a solo https
             sameSite: "strict",
             maxAge: 60 * 60 * 1000
         })
-        .json({ accessToken, refreshToken });
+        .json({
+            message: "Login exitoso",
+            accessToken,
+            refreshToken,
+            user: {
+                username: usuario.username,
+                rol: usuario.rol
+            }
+        })
     } catch (error) {
         // Manejar cualquier error que ocurra durante el proceso de login
         console.error(error);
@@ -56,11 +64,11 @@ export function refresh(req, res){
     try {
         const data= jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET)
         const newToken= jwt.sign(
-            {username: data.username, role: data.role},
+            {username: data.username, rol: data.rol},
             process.env.JWT_SECRET,
-            { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN }
+            { expiresIn: process.env.JWT_EXPIRES_IN }
         )
-        res
+        return res
             .cookie('accessToken', newToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
