@@ -1,46 +1,42 @@
+// Importaciones de dependencias y configuración del entorno
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './config/swagger.js';
+
+// Importaciones de rutas y controladores
 import authRoutes from './routes/authRoutes.js';
-import cookieParser from 'cookie-parser'
-import authToken from './middleware/authMiddleware.js'
-import protectedRoute from './routes/protectedRoutes.js';
-import requireRole from './controllers/requireRole.js';
+import institutionRoutes from './routes/institutionRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
 
 // Crea una instancia de la aplicación Express
-const app = express();
-// Configura CORS y el middleware para parsear JSON en las solicitudes entrantes
-app.use(cors());
+const app = express();  
+// Configura CORS para permitir solicitudes desde el frontend, incluyendo credenciales (cookies)
+app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 app.use(express.json());
 app.use(cookieParser())
 
+// Configuración de Swagger para la documentación de la API
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 // Ruta de prueba para verificar que el servidor funciona
-app.get('/test', (req, res) => {
+app.get('/api/test', (req, res) => {
     res.json({ message: 'Servidor funcionando correctamente!' });
 });
 
-// Define la ruta base para las rutas de autenticación, que se manejarán en authRoutes
+// Rutas de autenticación y manejo de sesiones
 app.use('/api/auth', authRoutes);
-app.get('/api/logout', (req, res) => {
-    res
-        .clearCookie('accessToken', {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 60 * 60 * 1000
-        })
-        .json({ message: 'Sesión cerrada correctamente.' })
-})
 
-app.get('/dashboard-general', authToken, requireRole('SUPERADMIN'), protectedRoute('dashboard-general'))
-app.get('/gestion-eventos', authToken, requireRole('SUPERADMIN'), protectedRoute('gestion-eventos'))
-app.get('/gestion-escuelas', authToken, requireRole('SUPERADMIN'), protectedRoute('gestion-escuelas'))
+// Rutas de instituciones, protegidas por autenticación y autorización
+app.use('/api/institutions', institutionRoutes);
 
-app.get('/dashboard-escuela', authToken, requireRole('ADMIN'), protectedRoute('dashboard-escuela'))
-app.get('/gestion-estudiantes', authToken, requireRole('ADMIN'), protectedRoute('gestion-estudiantes'))
-app.get('/eventos-propios', authToken, requireRole('ADMIN'), protectedRoute('eventos-propios'))
+// Rutas de administración, protegidas por autenticación y autorización
+app.use('/api/admins', adminRoutes);
 
-app.get('/ver-eventos', authToken, requireRole('ESTUDIANTE'), protectedRoute('ver-eventos'))
+
+
 
 // Manejo de errores
 app.use((err, req, res, next) => {
@@ -58,6 +54,7 @@ process.on('uncaughtException', (err) => {
     server.close(() => process.exit(1));
 });
 
+// Manejo de promesas no manejadas
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
     server.close(() => process.exit(1));
