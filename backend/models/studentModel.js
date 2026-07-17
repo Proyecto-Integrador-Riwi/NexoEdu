@@ -115,3 +115,11 @@ export async function eliminarTodas(id) {
     );
     return resultado.rows[0];
 }
+
+export async function obtenerPorPeopleId(people_id) {
+    const resultado = await pool.query(
+        'SELECT * FROM student_profiles WHERE people_id = $1',
+        [people_id]
+    );
+    return resultado.rows[0];
+}
