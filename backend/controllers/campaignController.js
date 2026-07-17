@@ -1,4 +1,5 @@
 import * as CampaignModel from '../models/campaignModel.js';
+import * as StudentModel from '../models/studentModel.js';
 
 export async function crear(req, res) {
     const { title, type, description, sponsor, start_date, end_date, url_multimedia, scope_type, neighborhood_id, localities_id } = req.body;
@@ -119,5 +120,38 @@ export async function misCampanas(req, res) {
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Error al obtener tus campañas' });
+    }
+}
+
+export async function inscribirse(req, res) {
+    if (!req.user.people_id) {
+        return res.status(403).json({ error: 'Tu credencial no está asociada a una persona' });
+    }
+    const campaignId = Number(req.params.id);
+
+    try {
+        const elegibles = await CampaignModel.obtenerElegibles(req.user.people_id);
+        const esElegible = elegibles.some(c => c.id === campaignId);
+        if (!esElegible) {
+            return res.status(403).json({ error: 'No eres elegible para esta campaña, o ya no está vigente' });
+        }
+
+        const perfil = await StudentModel.obtenerPorPeopleId(req.user.people_id);
+        if (!perfil) {
+            return res.status(404).json({ error: 'No se encontró tu perfil de estudiante' });
+        }
+
+        const inscripcion = await CampaignModel.crearEnrollment({
+            campaign_id: campaignId,
+            student_profile_id: perfil.id
+        });
+
+        res.status(201).json(inscripcion);
+    } catch (error) {
+        console.error(error);
+        if (error.code === '23505') {
+            return res.status(409).json({ error: 'Ya estás inscrito en esta campaña' });
+        }
+        res.status(500).json({ error: 'Error al inscribirse en la campaña' });
     }
 }

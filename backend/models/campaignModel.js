@@ -99,3 +99,12 @@ export async function obtenerElegibles(people_id) {
     );
     return resultado.rows;
 }
+
+export async function crearEnrollment({ campaign_id, student_profile_id }) {
+    const resultado = await pool.query(
+        `INSERT INTO campaign_enrollments (campaign_id, student_profile_id, enrolled_at)
+         VALUES ($1, $2, NOW()) RETURNING *`,
+        [campaign_id, student_profile_id]
+    );
+    return resultado.rows[0];
+}

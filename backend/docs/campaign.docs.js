@@ -135,3 +135,25 @@
  *       404:
  *         description: La campaña no tiene criterios definidos
  */
+/**
+ * @openapi
+ * /api/campaigns/{id}/enroll:
+ *   post:
+ *     summary: El estudiante se inscribe a una campaña para la que es elegible
+ *     tags: [Campaigns]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       201:
+ *         description: Inscripción registrada
+ *       403:
+ *         description: No eres elegible para esta campaña, o tu credencial no está asociada a una persona
+ *       404:
+ *         description: No se encontró tu perfil de estudiante
+ *       409:
+ *         description: Ya estás inscrito en esta campaña
+ */
