@@ -1,17 +1,5 @@
 import pool from '../db.js';
 
-// Resuelve la institución asignada al admin logueado
-export async function obtenerInstitucionPorUsername(username) {
-    const resultado = await pool.query(
-        `SELECT i.id, i.institution_name
-        FROM institutions i
-        JOIN credentials c ON c.id = i.credential_id
-        WHERE c.username = $1`,
-        [username]
-    );
-    return resultado.rows[0];
-}
-
 export async function obtenerPorInstitucion(institution_id) {
     const resultado = await pool.query(
         `SELECT sp.*, p.first_name, p.last_name, p.email,
