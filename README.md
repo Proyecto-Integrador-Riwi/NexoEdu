@@ -1,104 +1,88 @@
-# RIWI-Projects
+# NexoEdu
 
-A web platform for tracking students and graduates across educational institutions, built through update campaigns managed by school admins and a super admin.
+A web platform for tracking and managing student and graduate information across educational institutions. The system centralizes student/graduate data and keeps it current through update campaigns run by school administrators and a super administrator.
+
+This is a capstone project (Proyecto Integrador). This README documents the project as delivered for the current submission — it is a snapshot of progress, not the final version. Sections below state clearly what is finished, what is in progress, and what is explicitly pending.
+
+## Repository Structure
+
+This repository (`NexoEdu`) is the intended home for the full, integrated project. Its current contents:
+
+```
+NexoEdu/
+├── backend/     # Real REST API (Express + PostgreSQL/Supabase) — functional, documented, tested independently
+├── frontend/    # Early frontend scaffold — not the actively developed version, see note below
+├── package.json # Root orchestration scripts (installs and runs both folders together)
+└── README.md
+```
+
+## Related Repositories
+
+The project is currently split across three repositories while each part is developed and validated independently:
+
+| Repository | Purpose |
+|---|---|
+| [Database_Structure](https://github.com/Proyecto-Integrador-Riwi/Database_Structure) | PostgreSQL schema, entity-by-entity design justification, business rules, and the Supabase migration process |
+| [Frontend_Structure_With_MockAPI](https://github.com/Proyecto-Integrador-Riwi/Frontend_Structure_With_MockAPI) | The actively developed frontend, currently built against a mock API so frontend work isn't blocked by backend progress |
+| `NexoEdu` (this repo) | The real backend, and the eventual integration point for the whole project |
+
+## Current Integration Status
+
+**The backend and frontend are not yet integrated.** They have been developed in parallel:
+
+- The **backend** (`backend/` in this repo) is complete for the endpoints listed in its own README, tested independently via Swagger and Thunder Client against a real Supabase database.
+- The **frontend** (in the separate `Frontend_Structure_With_MockAPI` repository) is built against a mock Express server returning data from a local `db.json`, so frontend development didn't have to wait on backend endpoints.
+- The `frontend/` folder inside this repository is an earlier scaffold and does not reflect the frontend team's current, active work.
+
+The next integration step is: point the frontend's `API_URL` at this repository's real backend, remove the mock server, and merge the frontend team's current work into this repository.
 
 ## Tech Stack
 
-**Frontend:** Vanilla JavaScript SPA, Vite, Tailwind CSS
-**Backend:** Node.js, Express, PostgreSQL (via `pg`)
-**Architecture:** Monorepo with two independent packages (`frontend/`, `backend/`), backend follows an MVC pattern (Model → Controller → Route)
+| Layer | Technology |
+|---|---|
+| Frontend | Vanilla JavaScript (ES Modules), Vite 8, Tailwind CSS v4, custom SPA router |
+| Backend | Node.js, Express 5, JWT auth, Swagger/OpenAPI docs |
+| Database | PostgreSQL, hosted on Supabase |
 
-## Project Structure
-
-```
-RIWI-Projects/
-├── backend/
-│   ├── models/         # Database queries only (no req/res)
-│   ├── controllers/     # Request handling & validation
-│   ├── routes/            # Endpoint definitions
-│   ├── db.js               # PostgreSQL connection pool
-│   ├── index.js             # Express app entry point
-│   └── .env.example
-│
-├── frontend/
-│   └── src/
-│       ├── views/       # Page-level components (Login, Dashboard...)
-│       ├── modules/       # Client-side router, auth state, http wrapper
-│       ├── services/       # API calls, grouped by feature (mirrors backend controllers)
-│       └── components/       # Reusable UI pieces
-│
-└── package.json           # Root scripts to run both projects together
-```
+Full details for each layer are in their respective READMEs (linked below).
 
 ## Getting Started
 
-### 1. Install dependencies (both projects)
+### Run the backend (functional today, against the real database)
 
 ```bash
-npm run install:all
-```
-
-This installs `backend/` and `frontend/` dependencies separately — they don't share `node_modules`.
-
-### 2. Set up environment variables
-
-Copy the example file and fill in your local PostgreSQL credentials:
-
-```bash
-cp backend/.env.example backend/.env
-```
-
-```
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=your_database_name
-DB_USER=your_postgres_user
-DB_PASSWORD=your_postgres_password
-PORT=3000
-```
-
-`.env` is gitignored — never commit it.
-
-### 3. Run the project
-
-```bash
+cd backend
+npm install
 npm run dev
 ```
 
-This starts both the backend (port `3000`) and the frontend (Vite dev server) at once, using `concurrently`.
+See [`backend/README.md`](./backend/README.md) for environment variables, authentication, roles, and the full endpoint reference.
 
-To run them separately:
+### Run the backend + the local frontend scaffold together
+
+From the project root:
 
 ```bash
-npm run dev:backend
-npm run dev:frontend
+npm install          # installs concurrently
+npm run install:all  # installs backend/ and frontend/ dependencies separately
+npm run dev           # runs both at once
 ```
 
-## Backend Conventions
+Keep in mind this starts the `frontend/` folder in *this* repository, which — as noted above — is not the frontend team's current work.
 
-- **Models** (`backend/models/`) only talk to the database. No `req`/`res`, no HTTP logic.
-- **Controllers** (`backend/controllers/`) handle the request, validate input, call the model, and shape the response.
-- **Routes** (`backend/routes/`) only map an HTTP method + path to a controller function — no logic.
-- Every SQL query is parameterized (`$1`, `$2`, ...) — never concatenate raw input into a query.
+### Run the actively developed frontend (against the mock API)
 
-When adding a new feature (e.g. institutions, campaigns), follow this same three-file pattern.
+See the [Frontend_Structure_With_MockAPI](https://github.com/Proyecto-Integrador-Riwi/Frontend_Structure_With_MockAPI) repository and its own README for setup instructions.
 
-## Frontend Conventions
+## Documentation
 
-- **Services** (`frontend/src/services/`) are the only place that call the backend API — views should never call `fetch` directly.
-- **Views** (`frontend/src/views/`) render UI and call services.
-- Client-side routing and session state live in `frontend/src/modules/`.
+- [Backend README](./backend/README.md) — architecture, environment setup, authentication/roles, endpoint reference, conventions
+- [Database_Structure README](https://github.com/Proyecto-Integrador-Riwi/Database_Structure) — schema design rationale, business rules, Supabase migration
+- [Frontend README](https://github.com/Proyecto-Integrador-Riwi/Frontend_Structure_With_MockAPI) — architecture, views, routes, mock API
 
-## API Testing
+## Roadmap
 
-Use Thunder Client (VS Code extension) or Postman to test endpoints manually. Example:
-
-```
-POST http://localhost:3000/api/auth/login
-Content-Type: application/json
-
-{
-  "username": "superadmin@gmail.com",
-  "password": "admin"
-}
-```
+- Finish remaining backend work (see [Planned Improvements](./backend/README.md#planned-improvements) in the backend README: student self-service profile updates, update history tracking, dashboard/indicator endpoints, institution soft delete, password hashing).
+- Merge the frontend team's current work into this repository.
+- Point the frontend at the real backend API and remove the mock server.
+- End-to-end integration testing across both layers.
