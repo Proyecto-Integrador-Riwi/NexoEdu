@@ -1,3 +1,5 @@
+// Controlador de instituciones: CRUD. La consulta individual es pública para
+// usuarios autenticados; crear/editar/eliminar quedan restringidos al superadmin.
 import * as InstitutionModel from '../models/institutionModel.js';
 
 export async function listar(req, res) {

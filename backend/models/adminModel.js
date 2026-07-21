@@ -1,4 +1,27 @@
+// Modelo de administradores institucionales: consultas a `credentials` e
+// `institutions` para crear/listar admins y asignarlos a una institución.
 import pool from '../db.js';
+
+// Lista todos los administradores institucionales (credentials cuyo rol es
+// 'administrador'), junto con la institución que tienen asignada (si alguna).
+// No se usa vw_institutions_complete directamente porque esa vista no
+// expone credential_id, que la vista de gestión necesita para poder
+// editar/eliminar un admin específico.
+export async function obtenerTodos() {
+    const resultado = await pool.query(
+        `SELECT
+            c.id AS credential_id,
+            c.username,
+            i.id AS institution_id,
+            i.institution_name
+         FROM credentials c
+         JOIN user_roles ur ON ur.id = c.role_id
+         LEFT JOIN institutions i ON i.credential_id = c.id
+         WHERE ur.name = 'administrador'
+         ORDER BY c.username`
+    );
+    return resultado.rows;
+}
 
 export async function existeUsername(username) {
     const resultado = await pool.query(

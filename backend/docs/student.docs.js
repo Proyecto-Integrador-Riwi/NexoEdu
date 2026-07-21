@@ -1,162 +1,202 @@
 /**
  * @openapi
+ * tags:
+ *   - name: Students
+ *     description: Estudiantes y egresados, su perfil académico y sus credenciales de acceso.
+ */
+
+/**
+ * @openapi
  * /api/students:
  *   get:
- *     summary: Lista estudiantes. Superadmin ve todos; administrador ve solo los de su institución
+ *     summary: Lista estudiantes/egresados
+ *     description: El administrador ve solo su institución; el superadmin puede filtrar por `institution_id`. Cada registro incluye `ultima_actualizacion`.
  *     tags: [Students]
+ *     security: [{ cookieAuth: [] }]
+ *     parameters:
+ *       - in: query
+ *         name: institution_id
+ *         schema: { type: integer }
+ *       - in: query
+ *         name: status_id
+ *         schema: { type: integer }
  *     responses:
- *       200:
- *         description: Lista de estudiantes obtenida correctamente
- *       401:
- *         description: No autenticado
- *       403:
- *         description: Sin permiso, o el admin no tiene institución asignada
- *       500:
- *         description: Error interno del servidor
+ *       200: { description: Lista de estudiantes }
+ *       401: { description: No autorizado }
  *   post:
- *     summary: Crea un nuevo perfil de estudiante (superadmin o administrador)
+ *     summary: Crea un estudiante (opcionalmente con credenciales de acceso)
+ *     description: Si se envían `username` y `password`, se crea la credencial de acceso (rol estudiante) enlazada.
  *     tags: [Students]
+ *     security: [{ cookieAuth: [] }]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required: [people_id, status_id, grade_id, start_date]
+ *             required: [first_name, last_name, gender_id, birth_date, email, document_type_id, document_number, neighborhood_id, institution_id, status_id, start_date]
  *             properties:
- *               people_id:
- *                 type: integer
- *                 description: ID de la persona a convertir en estudiante
- *                 example: 15
- *               institution_id:
- *                 type: integer
- *                 description: Requerido si quien crea es superadmin (el admin usa su propia institución automáticamente)
- *                 example: 1
- *               status_id:
- *                 type: integer
- *                 example: 1
- *               grade_id:
- *                 type: integer
- *                 example: 3
- *               start_date:
- *                 type: string
- *                 format: date
- *                 description: Fecha de entrada a la escuela
- *                 example: 2024-01-15
- *               end_date:
- *                 type: string
- *                 format: date
- *                 nullable: true
- *                 description: Fecha de egreso. Null si el estudiante sigue activo
- *                 example: null
+ *               first_name: { type: string }
+ *               last_name: { type: string }
+ *               gender_id: { type: integer }
+ *               birth_date: { type: string, format: date }
+ *               email: { type: string }
+ *               phone: { type: string }
+ *               document_type_id: { type: integer }
+ *               document_number: { type: string }
+ *               address: { type: string }
+ *               neighborhood_id: { type: integer }
+ *               institution_id: { type: integer }
+ *               status_id: { type: integer }
+ *               grade_id: { type: integer }
+ *               start_date: { type: string, format: date }
+ *               username: { type: string, description: Opcional. Usuario de acceso. }
+ *               password: { type: string, description: Opcional. Se guarda hasheada con bcrypt. }
  *     responses:
- *       201:
- *         description: Estudiante creado correctamente
- *       400:
- *         description: Datos incompletos, inválidos, end_date anterior a start_date, o falta institution_id (superadmin)
- *       401:
- *         description: No autenticado
- *       403:
- *         description: Sin permiso, o el admin no tiene institución asignada
- *       404:
- *         description: people_id, grade_id o status_id no existen
- *       409:
- *         description: Esa persona ya tiene un perfil de estudiante
- *       500:
- *         description: Error interno del servidor
+ *       201: { description: Estudiante creado }
+ *       400: { description: Campos requeridos faltantes }
+ *       409: { description: Email, documento o usuario duplicado }
+ */
+
+/**
+ * @openapi
+ * /api/students/me:
+ *   get:
+ *     summary: (Estudiante) Consulta sus propios datos
+ *     tags: [Students]
+ *     security: [{ cookieAuth: [] }]
+ *     responses:
+ *       200: { description: Datos del estudiante autenticado }
+ *       404: { description: No se encontró perfil de estudiante }
  */
 
 /**
  * @openapi
  * /api/students/{id}:
  *   get:
- *     summary: Obtiene un estudiante por su ID. Superadmin ve cualquiera; administrador solo si es de su institución
+ *     summary: Obtiene un estudiante por su ID
  *     tags: [Students]
+ *     security: [{ cookieAuth: [] }]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         schema:
- *           type: integer
- *         description: ID del perfil de estudiante (student_profiles.id)
+ *         schema: { type: integer }
  *     responses:
- *       200:
- *         description: Estudiante encontrado correctamente
- *       401:
- *         description: No autenticado
- *       403:
- *         description: Sin permiso, o el admin no tiene institución asignada
- *       404:
- *         description: Estudiante no encontrado
- *       500:
- *         description: Error interno del servidor
- *   put:
- *     summary: Actualiza estado, grado o fechas de un estudiante existente (superadmin o administrador)
+ *       200: { description: Estudiante encontrado (incluye username si tiene acceso) }
+ *       404: { description: No encontrado }
+ *   delete:
+ *     summary: Elimina un estudiante (y su credencial de acceso si tiene)
  *     tags: [Students]
+ *     security: [{ cookieAuth: [] }]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         schema:
- *           type: integer
- *         description: ID del perfil de estudiante (student_profiles.id)
+ *         schema: { type: integer }
+ *     responses:
+ *       200: { description: Estudiante eliminado }
+ *       404: { description: No encontrado }
+ */
+
+/**
+ * @openapi
+ * /api/students/{id}/personal:
+ *   put:
+ *     summary: Actualiza los datos personales del estudiante
+ *     tags: [Students]
+ *     security: [{ cookieAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: integer }
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required: [status_id, grade_id, start_date]
  *             properties:
- *               status_id:
- *                 type: integer
- *                 example: 2
- *               grade_id:
- *                 type: integer
- *                 example: 4
- *               start_date:
- *                 type: string
- *                 format: date
- *                 example: 2024-01-15
- *               end_date:
- *                 type: string
- *                 format: date
- *                 nullable: true
- *                 example: 2025-11-30
+ *               first_name: { type: string }
+ *               last_name: { type: string }
+ *               gender_id: { type: integer }
+ *               birth_date: { type: string, format: date }
+ *               email: { type: string }
+ *               phone: { type: string }
+ *               document_type_id: { type: integer }
+ *               document_number: { type: string }
+ *               address: { type: string }
+ *               neighborhood_id: { type: integer }
  *     responses:
- *       200:
- *         description: Estudiante actualizado correctamente
- *       400:
- *         description: Datos incompletos, inválidos o end_date anterior a start_date
- *       401:
- *         description: No autenticado
- *       403:
- *         description: Sin permiso, o el admin no tiene institución asignada
- *       404:
- *         description: Estudiante no encontrado, o grade_id/status_id no existen
- *       500:
- *         description: Error interno del servidor
- *   delete:
- *     summary: Elimina un perfil de estudiante por su ID (superadmin o administrador)
+ *       200: { description: Datos personales actualizados }
+ *       404: { description: No encontrado }
+ */
+
+/**
+ * @openapi
+ * /api/students/{id}/academico:
+ *   put:
+ *     summary: Actualiza el perfil académico (grado, estado, fechas)
  *     tags: [Students]
+ *     security: [{ cookieAuth: [] }]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         schema:
- *           type: integer
- *         description: ID del perfil de estudiante (student_profiles.id)
+ *         schema: { type: integer }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               institution_id: { type: integer }
+ *               status_id: { type: integer }
+ *               grade_id: { type: integer }
+ *               start_date: { type: string, format: date }
+ *               end_date: { type: string, format: date }
  *     responses:
- *       200:
- *         description: Estudiante eliminado correctamente
- *       401:
- *         description: No autenticado
- *       403:
- *         description: Sin permiso, o el admin no tiene institución asignada
- *       404:
- *         description: Estudiante no encontrado
- *       409:
- *         description: No se puede eliminar porque tiene registros asociados (campañas, actualizaciones, etc.)
- *       500:
- *         description: Error interno del servidor
+ *       200: { description: Perfil académico actualizado }
+ *       404: { description: No encontrado }
+ */
+
+/**
+ * @openapi
+ * /api/students/{id}/credentials:
+ *   get:
+ *     summary: Consulta el usuario de acceso del estudiante (nunca la contraseña)
+ *     tags: [Students]
+ *     security: [{ cookieAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: integer }
+ *     responses:
+ *       200: { description: "{ credential_id, username } — credential_id null si no tiene acceso" }
+ *   put:
+ *     summary: Crea o actualiza las credenciales del estudiante
+ *     description: Si no tiene acceso, requiere `username` y `password`. Si ya tiene, permite cambiar el usuario y/o restablecer la contraseña. La contraseña se guarda hasheada y nunca se devuelve.
+ *     tags: [Students]
+ *     security: [{ cookieAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: integer }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username: { type: string }
+ *               password: { type: string }
+ *     responses:
+ *       200: { description: Credenciales actualizadas }
+ *       400: { description: Faltan usuario/contraseña para crear el acceso }
+ *       409: { description: El nombre de usuario ya está en uso }
  */

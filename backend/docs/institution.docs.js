@@ -37,6 +37,12 @@
  *               dane_code:
  *                 type: string
  *                 example: 12345678
+ *               logo_url:
+ *                 type: string
+ *                 example: "https://.../logo.webp"
+ *               banner_url:
+ *                 type: string
+ *                 example: "https://.../banner.webp"
  *     responses:
  *       201:
  *         description: Institución creada correctamente
@@ -105,6 +111,12 @@
  *               dane_code:
  *                 type: string
  *                 example: 12345678
+ *               logo_url:
+ *                 type: string
+ *                 example: "https://.../logo.webp"
+ *               banner_url:
+ *                 type: string
+ *                 example: "https://.../banner.webp"
  *     responses:
  *       200:
  *         description: Institución actualizada correctamente

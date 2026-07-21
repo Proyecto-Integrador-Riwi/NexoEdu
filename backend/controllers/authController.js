@@ -1,5 +1,6 @@
 import * as AuthModel from '../models/authModel.js';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 import { cookieOptions } from '../config/cookieOptions.js';
 
 // Controlador para manejar el login de usuarios
@@ -13,18 +14,31 @@ export async function login(req, res) {
     try {  // Intentar buscar al usuario en la base de datos y verificar la contraseña
         const usuario = await AuthModel.buscarPorUsername(username); // Buscar al usuario por nombre de usuario
 
-        if (!usuario || usuario.password !== password) { // Si el usuario no existe o la contraseña no coincide, devolver un error de autenticación
+        if (!usuario) { // Si el usuario no existe, devolver un error de autenticación
             return res.status(401).json({ error: 'Usuario o contraseña incorrectos' });
         }
 
-        // authController.js, en login()
+        const passwordValida = await bcrypt.compare(password, usuario.password); // Compara la contraseña en texto plano contra el hash almacenado
+        if (!passwordValida) {
+            return res.status(401).json({ error: 'Usuario o contraseña incorrectos' });
+        }
+
+        // Si el usuario es admin institucional, incluimos su institution_id en
+        // el payload para poder restringir sus operaciones a esa institución.
+        const institutionId = usuario.rol === 'administrador'
+            ? await AuthModel.buscarInstitucionPorUsername(usuario.username)
+            : null;
+
+        // credential_id se incluye para poder validar la propiedad de recursos
+        // (ej. qué campañas creó este usuario) sin una consulta extra por
+        // petición. institution_id solo aplica a admins institucionales y sirve
+        // para restringir sus operaciones a su propia institución.
         const payload = {
-            id: usuario.id,
+            credential_id: usuario.credential_id,
             username: usuario.username,
             rol: usuario.rol,
-            institution_id: usuario.institution_id,
-            people_id: usuario.people_id
-        };
+            institution_id: institutionId
+        }
 
         const accessToken = jwt.sign( // Generar un token de acceso JWT con el payload, la clave secreta y el tiempo de expiración
             payload,
@@ -44,7 +58,8 @@ export async function login(req, res) {
                 refreshToken,
                 user: {
                     username: usuario.username,
-                    rol: usuario.rol
+                    rol: usuario.rol,
+                    institution_id: institutionId
                 }
             })
     } catch (error) {
@@ -62,9 +77,14 @@ export function refresh(req, res) {
         return res.status(401).json({ error: 'Usuario sin token' })
     }
     try {
-        const { iat, exp, ...payload } = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET)
+        const data = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET)
         const newToken = jwt.sign(
-            payload,
+            {
+                credential_id: data.credential_id ?? null,
+                username: data.username,
+                rol: data.rol,
+                institution_id: data.institution_id ?? null
+            },
             process.env.JWT_SECRET,
             { expiresIn: process.env.JWT_EXPIRES_IN }
         )
@@ -76,6 +96,7 @@ export function refresh(req, res) {
         console.error('Refresh token inválido ->', error.message)
         return res.status(401).json({ error: 'Refresh token inválido' })
     }
+
 }
 // Controlador para manejar el cierre de sesión de usuarios
 export function logout(req, res) {

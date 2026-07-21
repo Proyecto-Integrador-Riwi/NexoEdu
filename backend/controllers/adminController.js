@@ -1,5 +1,20 @@
+// Controlador de administradores institucionales (solo superadmin): crea la
+// credencial (con contraseña hasheada), lista, reasigna institución y elimina.
 import * as AdminModel from '../models/adminModel.js';
 import { obtenerRolId } from '../helpers/roles.js';
+import bcrypt from 'bcryptjs';
+
+const SALT_ROUNDS = 10;
+
+export async function listar(req, res) {
+    try {
+        const admins = await AdminModel.obtenerTodos();
+        res.json(admins);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener administradores' });
+    }
+}
 
 export async function crearAdmin(req, res) {
     const { username, password, institution_id } = req.body;
@@ -16,7 +31,7 @@ export async function crearAdmin(req, res) {
 
         const roleId = await obtenerRolId('administrador');
         if (!roleId) {
-            return res.status(500).json({ error: 'Error de configuración: rol administrador no encontrado' });
+            return res.status(500).json({ error: 'Error de configuración: rol ADMINISTRADOR no encontrado' });
         }
 
         if (institution_id) {
@@ -26,7 +41,8 @@ export async function crearAdmin(req, res) {
             }
         }
 
-        const credencial = await AdminModel.crearCredencial({ username, password, role_id: roleId });
+        const passwordHash = await bcrypt.hash(password, SALT_ROUNDS); // Nunca guardamos la contraseña en texto plano
+        const credencial = await AdminModel.crearCredencial({ username, password: passwordHash, role_id: roleId });
 
         let institucion = null;
         if (institution_id) {
@@ -37,7 +53,7 @@ export async function crearAdmin(req, res) {
         }
 
         res.status(201).json({
-            message: 'administrador creado exitosamente',
+            message: 'Administrador creado exitosamente',
             admin: { id: credencial.id, username: credencial.username },
             institucion: institucion
                 ? { id: institucion.id, institution_name: institucion.institution_name }
@@ -69,7 +85,7 @@ export async function asignarInstitucion(req, res) {
             return res.status(404).json({ error: 'Institución no encontrada' });
         }
         res.json({
-            message: 'administrador asignado a la institución exitosamente',
+            message: 'Administrador asignado a la institución exitosamente',
             institucion
         });
     } catch (error) {
@@ -89,9 +105,9 @@ export async function eliminarAdmin(req, res) {
         const roleId = await obtenerRolId('administrador');
         const admin = await AdminModel.eliminar(req.params.id, roleId);
         if (!admin) {
-            return res.status(404).json({ error: 'administrador no encontrado' });
+            return res.status(404).json({ error: 'Administrador no encontrado' });
         }
-        res.json({ message: 'administrador eliminado', admin });
+        res.json({ message: 'Administrador eliminado', admin });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Error al eliminar el administrador' });
