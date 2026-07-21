@@ -1,118 +1,96 @@
 <div align="center">
 
-<img src="https://img.shields.io/badge/NexoEdu-Student%20%26%20Graduate%20Tracking-2563EB?style=for-the-badge&logo=readthedocs&logoColor=white" alt="NexoEdu Banner"/>
+<img src="https://img.shields.io/badge/NexoEDU-Student%20Tracking-2563EB?style=for-the-badge&logo=readthedocs&logoColor=white" alt="NexoEDU"/>
 
-# 🎓 NexoEdu
+# 🎓 NexoEDU
 
-**A web platform for tracking and managing student and graduate information across educational institutions.**  
-The system centralizes student/graduate data and keeps it current through update campaigns run by school administrators and a super administrator.
+**A web platform for tracking and managing student and graduate information across educational institutions.**
+It centralizes student/graduate data and keeps it current through **update campaigns** run by each institution's administrators and a super administrator.
+
+Built by RIWI coders in partnership with the **Alcaldía de Barranquilla** (Barranquilla City Hall).
 
 <br/>
 
 [![Node.js](https://img.shields.io/badge/Node.js-18+-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Express](https://img.shields.io/badge/Express-5.x-000000?style=flat-square&logo=express&logoColor=white)](https://expressjs.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-3ECF8E?style=flat-square&logo=supabase&logoColor=white)](https://supabase.com/)
-[![Vite](https://img.shields.io/badge/Vite-8.x-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Vite](https://img.shields.io/badge/Vite-Build-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-[![Swagger](https://img.shields.io/badge/API%20Docs-Swagger-85EA2D?style=flat-square&logo=swagger&logoColor=black)](http://localhost:3000/api-docs)
-
-<br/>
-
-[Integration Status](#-current-integration-status) · [Related Repos](#-related-repositories) · [Getting Started](#-getting-started) · [Documentation](#-documentation) · [Roadmap](#%EF%B8%8F-roadmap)
+[![Swagger](https://img.shields.io/badge/API%20Docs-Swagger-85EA2D?style=flat-square&logo=swagger&logoColor=black)](https://nexoedu-backend.onrender.com/api-docs)
 
 </div>
 
 ---
 
-> 📌 This is a capstone project (Proyecto Integrador). This README documents the project **as delivered for the current submission** — it is a snapshot of progress, not the final version. Sections below state clearly what is finished, what is in progress, and what is explicitly pending.
+## 🚀 Live demo
 
-## 📁 Repository Structure
+| Service | URL |
+|---|---|
+| **App** (frontend) | https://nexo-edu.vercel.app |
+| **API** (backend) | https://nexoedu-backend.onrender.com |
+| **API docs** (Swagger) | https://nexoedu-backend.onrender.com/api-docs |
 
-This repository (`NexoEdu`) is the intended home for the full, integrated project. Its current contents:
+> Deployed on free tiers: the backend (Render) sleeps after ~15 min of inactivity, so the **first** request may take ~30-50 s to respond. That's expected; just retry.
+
+## 📁 Repository structure
 
 ```
 NexoEdu/
-├── 🗄️  backend/     → Real REST API (Express + PostgreSQL/Supabase) — functional, documented, tested independently
-├── 🎨 frontend/     → Early frontend scaffold — not the actively developed version, see note below
-├── 📄 package.json  → Root orchestration scripts (installs and runs both folders together)
-└── 📄 README.md
+├── backend/      → REST API (Express + PostgreSQL/Supabase). See backend/README.md
+├── frontend/     → Vanilla JavaScript SPA (Vite + Tailwind v4). See frontend/README.md
+├── package.json  → Orchestration scripts (installs and runs both folders together)
+└── README.md
 ```
 
-## 🔗 Related Repositories
-
-The project is currently split across three repositories while each part is developed and validated independently:
-
-| Repository | Purpose |
-|---|---|
-| [Database_Structure](https://github.com/Proyecto-Integrador-Riwi/Database_Structure) | PostgreSQL schema, entity-by-entity design justification, business rules, and the Supabase migration process |
-| [Frontend_Structure_With_MockAPI](https://github.com/Proyecto-Integrador-Riwi/Frontend_Structure_With_MockAPI) | The actively developed frontend, currently built against a mock API so frontend work isn't blocked by backend progress |
-| `NexoEdu` (this repo) | The real backend, and the eventual integration point for the whole project |
-
-## 🔄 Current Integration Status
-
-**The backend and frontend are not yet integrated.** They have been developed in parallel:
-
-- ✅ The **backend** (`backend/` in this repo) is complete for the endpoints listed in its own README, tested independently via Swagger and Thunder Client against a real Supabase database.
-- 🟡 The **frontend** (in the separate `Frontend_Structure_With_MockAPI` repository) is built against a mock Express server returning data from a local `db.json`, so frontend development didn't have to wait on backend endpoints.
-- ⚪ The `frontend/` folder inside this repository is an earlier scaffold and does not reflect the frontend team's current, active work.
-
-> **Next step:** point the frontend's `API_URL` at this repository's real backend, remove the mock server, and merge the frontend team's current work into this repository.
-
-## 🛠️ Tech Stack
+## 🛠️ Tech stack
 
 | Layer | Technology |
 |---|---|
-| Frontend | Vanilla JavaScript (ES Modules), Vite 8, Tailwind CSS v4, custom SPA router |
-| Backend | Node.js, Express 5, JWT auth, Swagger/OpenAPI docs |
-| Database | PostgreSQL, hosted on Supabase |
+| **Frontend** | Vanilla JavaScript (ES Modules), Vite, Tailwind CSS v4, custom SPA router |
+| **Backend** | Node.js, Express 5, JWT auth (`httpOnly` cookie), Swagger/OpenAPI |
+| **Database** | PostgreSQL, hosted on Supabase |
+| **Deployment** | Frontend → Vercel · Backend → Render · DB → Supabase |
 
-Full details for each layer are in their respective READMEs (linked below).
+## 👥 Roles
 
-## 🚀 Getting Started
+| Role | Scope |
+|---|---|
+| `superadmin` | Full access: manages institutions, admins, and campaigns across the whole district |
+| `administrador` | Manages students and campaigns **for their own institution only** |
+| `estudiante` | Views and updates their own data within the active campaigns they're eligible for |
 
-### Run the backend (functional today, against the real database)
+## ⚡ Getting started (local)
+
+Requirements: **Node.js 18+**, **npm**, and a PostgreSQL database (Supabase or a local Postgres).
 
 ```bash
-cd backend
+# 1. Install dependencies for root + backend + frontend
 npm install
+npm run install:all
+
+# 2. Configure the backend environment variables
+#    Copy backend/.env.example -> backend/.env and fill it in
+#    (see backend/README.md for the details of each variable)
+
+# 3. Run backend and frontend together
 npm run dev
 ```
 
-See [`backend/README.md`](./backend/README.md) for environment variables, authentication, roles, and the full endpoint reference.
+By default: backend on `http://localhost:3000` and frontend on `http://localhost:5173`.
 
-### Run the backend + the local frontend scaffold together
-
-From the project root:
-
-```bash
-npm install          # installs concurrently
-npm run install:all  # installs backend/ and frontend/ dependencies separately
-npm run dev           # runs both at once
-```
-
-> ⚠️ Keep in mind this starts the `frontend/` folder in *this* repository, which — as noted above — is not the frontend team's current work.
-
-### Run the actively developed frontend (against the mock API)
-
-See the [Frontend_Structure_With_MockAPI](https://github.com/Proyecto-Integrador-Riwi/Frontend_Structure_With_MockAPI) repository and its own README for setup instructions.
+> You can also run each part separately: `npm run dev:backend` and `npm run dev:frontend`.
 
 ## 📚 Documentation
 
-- [Backend README](./backend/README.md) — architecture, environment setup, authentication/roles, endpoint reference, conventions
-- [Database_Structure README](https://github.com/Proyecto-Integrador-Riwi/Database_Structure) — schema design rationale, business rules, Supabase migration
-- [Frontend README](https://github.com/Proyecto-Integrador-Riwi/Frontend_Structure_With_MockAPI) — architecture, views, routes, mock API
-
-## 🗺️ Roadmap
-
-- [ ] Finish remaining backend work (see [Planned Improvements](./backend/README.md#planned-improvements) in the backend README: student self-service profile updates, update history tracking, dashboard/indicator endpoints, institution soft delete, password hashing).
-- [ ] Merge the frontend team's current work into this repository.
-- [ ] Point the frontend at the real backend API and remove the mock server.
-- [ ] End-to-end integration testing across both layers.
+- **[Backend README](./backend/README.md)** — architecture, environment variables, auth/roles, endpoint reference, conventions.
+- **[Frontend README](./frontend/README.md)** — SPA architecture, views, components, and services.
+- **[Swagger](https://nexoedu-backend.onrender.com/api-docs)** — interactive API reference.
+- **[Database_Structure](https://github.com/Proyecto-Integrador-Riwi/Database_Structure)** — schema design, business rules, and seed data (separate repository).
 
 ## 👨‍💻 Team
 
 | Name | Role |
-|------|------|
+|---|---|
 | Ricardo | Scrum Master |
 | Jorge | Backend |
 | Daniel | Backend |
@@ -124,6 +102,7 @@ See the [Frontend_Structure_With_MockAPI](https://github.com/Proyecto-Integrador
 
 <div align="center">
 
-Built for **RIWI** · Proyecto Integrador · NexoEdu
+Built by **RIWI** coders · Proyecto Integrador · in partnership with the **Alcaldía de Barranquilla**
 
 </div>
+
