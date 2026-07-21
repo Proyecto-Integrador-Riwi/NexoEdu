@@ -68,7 +68,7 @@ app.use((err, req, res, next) => {
 
 // Inicia el servidor y muestra un banner de bienvenida con la marca y los
 // enlaces útiles (API y documentación Swagger).
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
 const server = app.listen(PORT, () => {
     const C = { navy: '\x1b[36m', green: '\x1b[32m', yellow: '\x1b[33m', gris: '\x1b[90m', bold: '\x1b[1m', reset: '\x1b[0m' };
     const base = `http://localhost:${PORT}`;
